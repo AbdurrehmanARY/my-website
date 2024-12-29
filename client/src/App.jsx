@@ -1,7 +1,5 @@
-// import { Route, Routes } from 'react-router-dom';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthLayout from './components/auth/AuthLayout';
-import './index.css';
 import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import AdminLayout from './components/admin/AdminLayout';
@@ -14,44 +12,89 @@ import Account from './pages/shoping/Account';
 import Checkout from './pages/shoping/Checkout';
 import Listing from './pages/shoping/Listing';
 import Home from './pages/shoping/Home';
-
+import { ProtectedRoute } from './components/protectedRoute/ProtectedRoute';
+import NotFound from './pages/NotFound';
+import { useAuthContext } from './context/AuthContext';
+import Landing from './pages/landing';
+import { useEffect } from 'react';
 function App() {
+  const {dispatch,isAuth,user,myProfile}=useAuthContext()
+  console.log("is auth",isAuth,"user",user)
+
+  useEffect(() => {
+  myProfile().then((res)=>{
+if(res.user){
+  dispatch({type:"LOGIN",payload:res.user})
+}
+else{
+  dispatch({type:"LOGOUT"})
+}
+
+
+  })
+// console.log(res)
+   
+  }, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
-    <div className="flex flex-col overflow-hidden bg-white">
-      {/* Auth Routing */}
+   
+   <div className="flex flex-col overflow-hidden bg-white">
       <Router>
-      <Routes >
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route path="register" element={<Register />} />
-          <Route path="login" element={<Login />} />
-        </Route>
-      </Routes>
+        <Routes>
+        <Route path="/" element={<Landing />} />
 
-      {/* Admin Routing */}
-      <Routes >
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="product" element={<Products />} />
-          <Route path="feature" element={<Feature />} />
-          <Route path="orders" element={<Orders />} />
+          {/* Auth Routing */}
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route path="register" element={<Register />} />
+            <Route path="login" element={<Login />} />
+          </Route>
 
-        </Route>
-      </Routes>
- {/* //   user shopping routing  */}
- <Routes >
-        <Route path="/shop" element={<ShopLayout />}>
-          <Route path="account" element={<Account />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="home" element={<Home />} />
-          <Route path="listing" element={<Listing />} />
+          {/* Admin Routing */}
+          <Route
+            path="/admin"
+            element={
+              // <ProtectedRoute roleAllowed={['admin']}>
+                <AdminLayout />
+              // </ProtectedRoute>
+            }
+          >
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="product" element={<Products />} />
+            <Route path="feature" element={<Feature />} />
+            <Route path="orders" element={<Orders />} />
+          </Route>
 
-        </Route>
-      </Routes>
+          {/* User Shopping Routing */}
+          {/* <Route
+            path="/shop"
+            element={
+              <ProtectedRoute roleAllowed={['user']}>
+                <ShopLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="account" element={<Account />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="home" element={<Home />} />
+            <Route path="listing" element={<Listing />} />
+          </Route> */}
 
-
-
-
-  
+          {/* Global Not Found */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Router>
     </div>
   );
